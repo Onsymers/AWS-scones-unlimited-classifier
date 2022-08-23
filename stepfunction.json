@@ -1,0 +1,38 @@
+{
+    "Comment": "A description of my state machine",
+    "StartAt": "serializeImageData Invoke",
+    "States": {
+      "serializeImageData Invoke": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "Parameters": {
+          "Payload.$": "$",
+          "FunctionName": "arn:aws:lambda:us-east-1:328918275355:function:serializeImageData:$LATEST"
+        },
+        "Next": "scones-classification-function Invoke",
+        "OutputPath": "$.Payload"
+      },
+      "scones-classification-function Invoke": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "OutputPath": "$.Payload",
+        "Parameters": {
+          "Payload.$": "$",
+          "FunctionName": "arn:aws:lambda:us-east-1:328918275355:function:scones-classification-function:$LATEST"
+        },
+        "Next": "scones-filter-low-confidence Invoke",
+        "InputPath": "$.body"
+      },
+      "scones-filter-low-confidence Invoke": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::lambda:invoke",
+        "OutputPath": "$.Payload",
+        "Parameters": {
+          "Payload.$": "$",
+          "FunctionName": "arn:aws:lambda:us-east-1:328918275355:function:scones-filter-low-confidence:$LATEST"
+        },
+        "End": true,
+        "InputPath": "$.body"
+      }
+    }
+  }
